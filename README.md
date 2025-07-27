@@ -1,1 +1,1 @@
-# pre-class-activity-group-22
+# Pre-Class Activity: Student Performance Database at ALU Rwanda
