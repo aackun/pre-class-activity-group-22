@@ -73,5 +73,96 @@ INSERT INTO python_grades (course_id, course_name, student_id, grade_obtained) V
 (201, 'Python Programming', 14, 58.0),
 (201, 'Python Programming', 15, 93.0);
 
--- QUERIES
--- ...
+
+#students who scored less than 50 in Linux course
+SELECT
+    s.student_id,
+    s.student_name,
+    lg.grade_obtained AS linux_grade
+FROM
+    students s
+JOIN
+    linux_grades lg ON s.student_id = lg.student_id
+WHERE
+    lg.grade_obtained < 50;
+
+
+#students who took only one course
+
+SELECT
+    s.student_id,
+    s.student_name,
+    'Linux Only' AS course_taken
+FROM
+    students s
+JOIN
+    linux_grades lg ON s.student_id = lg.student_id
+LEFT JOIN
+    python_grades pg ON s.student_id = pg.student_id
+WHERE
+    pg.student_id IS NULL
+UNION
+SELECT
+    s.student_id,
+    s.student_name,
+    'Python Only' AS course_taken
+FROM
+    students s
+JOIN
+    python_grades pg ON s.student_id = pg.student_id
+LEFT JOIN
+    linux_grades lg ON s.student_id = lg.student_id
+WHERE
+    lg.student_id IS NULL;
+
+
+#student who took both courses
+
+SELECT
+    s.student_id,
+    s.student_name
+FROM
+    students s
+JOIN
+    linux_grades lg ON s.student_id = lg.student_id
+JOIN
+    python_grades pg ON s.student_id = pg.student_id;
+
+
+#calculate the average grade per course 
+
+-- Average grade for Linux course
+SELECT
+    'Linux' AS course_name,
+    AVG(grade_obtained) AS average_grade
+FROM
+    linux_grades;
+
+-- Average grade for Python course
+SELECT
+    'Python' AS course_name,
+    AVG(grade_obtained) AS average_grade
+FROM
+    python_grades;
+
+
+
+#identify top performing students 
+
+SELECT
+    s.student_id,
+    s.student_name,
+    AVG(combined_grades.grade_obtained) AS overall_average_grade
+FROM
+    students s
+JOIN
+    (
+        SELECT student_id, grade_obtained FROM linux_grades
+        UNION ALL
+        SELECT student_id, grade_obtained FROM python_grades
+    ) AS combined_grades ON s.student_id = combined_grades.student_id
+GROUP BY
+    s.student_id, s.student_name
+ORDER BY
+    overall_average_grade DESC
+LIMIT 1;
